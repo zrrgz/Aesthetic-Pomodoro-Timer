@@ -4,13 +4,16 @@ from PIL import Image, ImageTk
 import time
 import pystray
 from pystray import MenuItem as item
+import sys
 
 # Pomodoro Timer class
 class PomodoroTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("Aesthetic Pomodoro Timer")
-        self.root.geometry("300x500")
+
+        # Set window to the bottom right corner
+        self.position_window()
 
         # Time variables
         self.work_time = 25 * 60  # 25 minutes
@@ -18,6 +21,7 @@ class PomodoroTimer:
         self.current_time = self.work_time
         self.is_running = False
         self.is_break = False
+        self.is_paused = False
 
         # Define themes with stylish color combinations
         self.themes = {
@@ -54,6 +58,17 @@ class PomodoroTimer:
             item('Exit', self.exit_app)
         ))
 
+    def position_window(self):
+        """Set the window position to the bottom right corner of the screen."""
+        self.root.update_idletasks()
+        width = 300
+        height = 500
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = screen_width - width
+        y = screen_height - height - 20  # Small padding from the bottom
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
     def create_ui(self):
         # Aesthetic label
         self.label = tk.Label(self.root, text="Pomodoro Timer", font=("Helvetica", 18, "bold"))
@@ -66,6 +81,9 @@ class PomodoroTimer:
         # Control buttons
         self.start_button = tk.Button(self.root, text="Start", command=self.start_timer, width=10, font=("Helvetica", 12))
         self.start_button.pack(pady=10)
+
+        self.pause_button = tk.Button(self.root, text="Pause", command=self.pause_timer, width=10, font=("Helvetica", 12))
+        self.pause_button.pack(pady=10)
 
         self.reset_button = tk.Button(self.root, text="Reset", command=self.reset_timer, width=10, font=("Helvetica", 12))
         self.reset_button.pack(pady=10)
@@ -85,6 +103,7 @@ class PomodoroTimer:
         self.label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 18, "bold"))
         self.time_label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 48))
         self.start_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
+        self.pause_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
         self.reset_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
         self.theme_label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 12))
 
@@ -99,13 +118,26 @@ class PomodoroTimer:
             self.is_running = True
             self.update_timer()
 
+    def pause_timer(self):
+        """Pause or resume the timer."""
+        if self.is_running:
+            if not self.is_paused:
+                self.is_paused = True
+                self.pause_button.config(text="Resume")
+            else:
+                self.is_paused = False
+                self.pause_button.config(text="Pause")
+                self.update_timer()
+
     def reset_timer(self):
         self.is_running = False
+        self.is_paused = False
         self.current_time = self.work_time if not self.is_break else self.break_time
         self.time_label.config(text=self.format_time(self.current_time))
+        self.pause_button.config(text="Pause")
 
     def update_timer(self):
-        if self.is_running:
+        if self.is_running and not self.is_paused:
             if self.current_time > 0:
                 self.current_time -= 1
                 self.time_label.config(text=self.format_time(self.current_time))
