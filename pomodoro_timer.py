@@ -28,7 +28,18 @@ class PomodoroTimer:
             "Sunny Day": {"bg": "#fffae6", "fg": "#ff6b6b", "button_bg": "#f0a500", "button_fg": "#ffffff", "font": "Lobster"},
             "Ocean Breeze": {"bg": "#d1f2eb", "fg": "#1a535c", "button_bg": "#4ecdc4", "button_fg": "#ffffff", "font": "Pacifico"},
             "Lavender Bliss": {"bg": "#e6e6fa", "fg": "#6a0572", "button_bg": "#93329e", "button_fg": "#ffffff", "font": "Montserrat"},
-            # Add other themes here
+            "Midnight Blue": {"bg": "#1a1a2e", "fg": "#e94560", "button_bg": "#16213e", "button_fg": "#ffffff", "font": "Lobster"},
+            "Minty Fresh": {"bg": "#dff9fb", "fg": "#38ada9", "button_bg": "#78e08f", "button_fg": "#ffffff", "font": "Pacifico"},
+            "Rosewood": {"bg": "#ffe4e1", "fg": "#ff6b81", "button_bg": "#ff4757", "button_fg": "#ffffff", "font": "Lobster"},
+            "Emerald": {"bg": "#d1f2a5", "fg": "#2ecc71", "button_bg": "#27ae60", "button_fg": "#ffffff", "font": "Pacifico"},
+            "Desert Sunset": {"bg": "#fad0c4", "fg": "#ff6b81", "button_bg": "#e17055", "button_fg": "#ffffff", "font": "Lobster"},
+            "Royal Blue": {"bg": "#ebf5fb", "fg": "#2980b9", "button_bg": "#3498db", "button_fg": "#ffffff", "font": "Montserrat"},
+            "Tropical Paradise": {"bg": "#ff9ff3", "fg": "#f368e0", "button_bg": "#833471", "button_fg": "#ffffff", "font": "Lobster"},
+            "Dark Forest": {"bg": "#2f3640", "fg": "#44bd32", "button_bg": "#4cd137", "button_fg": "#ffffff", "font": "Pacifico"},
+            "Neon Night": {"bg": "#1B1464", "fg": "#c8d6e5", "button_bg": "#00d2d3", "button_fg": "#ffffff", "font": "Montserrat"},
+            "Cotton Candy": {"bg": "#ffcccc", "fg": "#ff6b81", "button_bg": "#ff9ff3", "button_fg": "#ffffff", "font": "Pacifico"},
+            "Autumn Blaze": {"bg": "#ffbe76", "fg": "#d35400", "button_bg": "#e74c3c", "button_fg": "#ffffff", "font": "Montserrat"},
+            "Frozen Lake": {"bg": "#dff9fb", "fg": "#2d98da", "button_bg": "#1e3799", "button_fg": "#ffffff", "font": "Pacifico"}
         }
 
         # Default theme
