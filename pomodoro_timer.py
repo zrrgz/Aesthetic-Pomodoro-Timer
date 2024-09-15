@@ -1,62 +1,114 @@
 import tkinter as tk
-from tkinter import ttk
-import time
+from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
+import time
 import pystray
 from pystray import MenuItem as item
-import threading
+import sys
 
+# Pomodoro Timer class
 class PomodoroTimer:
     def __init__(self, root):
         self.root = root
-        self.root.title("Pomodoro Timer")
+        self.root.title("Aesthetic Pomodoro Timer")
 
-        # Position the window in the bottom right corner
-        self.position_window_bottom_right()
+        # Set window to the bottom right corner
+        self.position_window()
 
-        self.is_running = False
-        self.is_paused = False
-        self.time_remaining = 0
+        # Time variables
         self.work_time = 25 * 60  # 25 minutes
         self.break_time = 5 * 60  # 5 minutes
+        self.current_time = self.work_time
+        self.is_running = False
+        self.is_break = False
+        self.is_paused = False
 
-        # Create a label for displaying the timer
-        self.timer_label = tk.Label(root, text="25:00", font=("Helvetica", 48), bg="white", fg="black")
-        self.timer_label.pack(pady=20)
+        # Define themes with stylish color combinations
+        self.themes = {
+            "Sunny Day": {"bg": "#fffae6", "fg": "#ff6b6b", "button_bg": "#f0a500", "button_fg": "#ffffff", "font": "Lobster"},
+            "Ocean Breeze": {"bg": "#d1f2eb", "fg": "#1a535c", "button_bg": "#4ecdc4", "button_fg": "#ffffff", "font": "Pacifico"},
+            "Lavender Bliss": {"bg": "#e6e6fa", "fg": "#6a0572", "button_bg": "#93329e", "button_fg": "#ffffff", "font": "Montserrat"},
+            # Add other themes here
+        }
 
-        # Start, Pause/Resume and Reset Buttons
-        self.start_button = tk.Button(root, text="Start", command=self.start_timer, bg="green", fg="white", font=("Arial", 14))
-        self.start_button.pack(side="left", padx=10, pady=10)
+        # Default theme
+        self.current_theme = "Sunny Day"
 
-        self.pause_button = tk.Button(root, text="Pause", command=self.pause_resume_timer, bg="orange", fg="white", font=("Arial", 14))
-        self.pause_button.pack(side="left", padx=10, pady=10)
+        # Create the UI first
+        self.create_ui()
 
-        self.reset_button = tk.Button(root, text="Reset", command=self.reset_timer, bg="red", fg="white", font=("Arial", 14))
-        self.reset_button.pack(side="left", padx=10, pady=10)
+        # Apply the default theme after the UI is created
+        self.apply_theme(self.themes[self.current_theme])
 
-        self.update_timer()
+        # Create the tray icon
+        self.icon_image = Image.open("icon.png")  # Ensure you have an icon.png
+        self.icon = pystray.Icon("Pomodoro Timer", self.icon_image, menu=pystray.Menu(
+            item('Show', self.show_window),
+            item('Exit', self.exit_app)
+        ))
 
-    def position_window_bottom_right(self):
-        # Get screen width and height
+    def position_window(self):
+        """Set the window position to the bottom right corner of the screen."""
+        self.root.update_idletasks()
+        width = 300
+        height = 500
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
+        x = screen_width - width
+        y = screen_height - height - 20  # Small padding from the bottom
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-        # Calculate the position for the bottom right corner
-        window_width = 400  # Adjust according to your window size
-        window_height = 200  # Adjust according to your window size
-        x = screen_width - window_width
-        y = screen_height - window_height
+    def create_ui(self):
+        # Aesthetic label
+        self.label = tk.Label(self.root, text="Pomodoro Timer", font=("Helvetica", 18, "bold"))
+        self.label.pack(pady=20)
 
-        # Set the geometry of the window (width x height + x + y)
-        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        # Timer display
+        self.time_label = tk.Label(self.root, text=self.format_time(self.current_time), font=("Helvetica", 48))
+        self.time_label.pack(pady=20)
+
+        # Control buttons
+        self.start_button = tk.Button(self.root, text="Start", command=self.start_timer, width=10, font=("Helvetica", 12))
+        self.start_button.pack(pady=10)
+
+        self.pause_button = tk.Button(self.root, text="Pause", command=self.pause_timer, width=10, font=("Helvetica", 12))
+        self.pause_button.pack(pady=10)
+
+        self.reset_button = tk.Button(self.root, text="Reset", command=self.reset_timer, width=10, font=("Helvetica", 12))
+        self.reset_button.pack(pady=10)
+
+        # Theme dropdown
+        self.theme_label = tk.Label(self.root, text="Choose Theme", font=("Helvetica", 12))
+        self.theme_label.pack(pady=10)
+
+        self.theme_combo = ttk.Combobox(self.root, values=list(self.themes.keys()), state="readonly", font=("Helvetica", 10))
+        self.theme_combo.set(self.current_theme)
+        self.theme_combo.pack(pady=5)
+        self.theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
+
+    def apply_theme(self, theme):
+        """Apply a given theme to the UI elements."""
+        self.root.configure(bg=theme["bg"])
+        self.label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 18, "bold"))
+        self.time_label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 48))
+        self.start_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
+        self.pause_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
+        self.reset_button.configure(bg=theme["button_bg"], fg=theme["button_fg"], font=(theme["font"], 12))
+        self.theme_label.configure(bg=theme["bg"], fg=theme["fg"], font=(theme["font"], 12))
+
+    def change_theme(self, event):
+        """Handle theme change event."""
+        selected_theme = self.theme_combo.get()
+        self.current_theme = selected_theme
+        self.apply_theme(self.themes[selected_theme])
 
     def start_timer(self):
         if not self.is_running:
             self.is_running = True
-            self.time_remaining = self.work_time
             self.update_timer()
 
-    def pause_resume_timer(self):
+    def pause_timer(self):
+        """Pause or resume the timer."""
         if self.is_running:
             if not self.is_paused:
                 self.is_paused = True
@@ -69,31 +121,48 @@ class PomodoroTimer:
     def reset_timer(self):
         self.is_running = False
         self.is_paused = False
+        self.current_time = self.work_time if not self.is_break else self.break_time
+        self.time_label.config(text=self.format_time(self.current_time))
         self.pause_button.config(text="Pause")
-        self.timer_label.config(text="25:00")
-        self.time_remaining = self.work_time
 
     def update_timer(self):
         if self.is_running and not self.is_paused:
-            minutes = self.time_remaining // 60
-            seconds = self.time_remaining % 60
-            self.timer_label.config(text=f"{minutes:02d}:{seconds:02d}")
-            if self.time_remaining > 0:
-                self.time_remaining -= 1
+            if self.current_time > 0:
+                self.current_time -= 1
+                self.time_label.config(text=self.format_time(self.current_time))
                 self.root.after(1000, self.update_timer)
             else:
-                # Switch to break time
-                if self.time_remaining == 0 and self.is_running:
-                    self.time_remaining = self.break_time
-                    self.timer_label.config(text="Break Time!")
-                    self.is_running = False  # Stop timer until reset
-        elif not self.is_running:
-            self.root.after(1000, self.update_timer)
+                if not self.is_break:
+                    self.current_time = self.break_time
+                    self.is_break = True
+                    messagebox.showinfo("Break Time!", "Take a 5-minute break!")
+                else:
+                    self.current_time = self.work_time
+                    self.is_break = False
+                    messagebox.showinfo("Back to Work!", "Time to get back to work!")
+                self.reset_timer()
 
-    def on_quit(self):
+    def format_time(self, seconds):
+        mins, secs = divmod(seconds, 60)
+        return f"{mins:02}:{secs:02}"
+
+    def hide_window(self):
+        self.root.withdraw()
+
+    def show_window(self, icon, item):
+        self.root.deiconify()
+
+    def exit_app(self, icon, item):
+        self.is_running = False
+        self.icon.stop()
         self.root.quit()
 
+    def on_closing(self):
+        self.hide_window()
+
+# Run the application
 if __name__ == "__main__":
     root = tk.Tk()
     app = PomodoroTimer(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)
     root.mainloop()
