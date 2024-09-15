@@ -34,6 +34,7 @@ An aesthetically pleasing Pomodoro Timer built with Python and Tkinter, featurin
 To build a standalone executable (without needing Python installed), use PyInstaller:
 
    pyinstaller --noconsole --onefile pomodoro_timer.py
+   
    You can find the executable in the dist folder.
    
 
