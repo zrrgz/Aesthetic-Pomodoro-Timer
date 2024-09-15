@@ -37,21 +37,23 @@ pyinstaller --noconsole --onefile pomodoro_timer.py
 You can find the executable in the dist folder.
 
 ### Usage
-Start the timer for 25 minutes of focused work.
-Take a 5-minute break when prompted.
-Enjoy different themes by selecting from the dropdown menu!
-### Contributing
-We welcome contributions! Here's how you can help:
+   Start the timer for 25 minutes of focused work.
+   Take a 5-minute break when prompted.
+   Enjoy different themes by selecting from the dropdown menu!
 
-Fork the repository
-Create a new branch (git checkout -b feature/my-feature)
-Commit your changes (git commit -m 'Add some feature')
-Push to the branch (git push origin feature/my-feature)
-Create a new Pull Request
+### Contributing
+   We welcome contributions! Here's how you can help:
+
+   Fork the repository
+      Create a new branch (git checkout -b feature/my-feature)
+      Commit your changes (git commit -m 'Add some feature')
+      Push to the branch (git push origin feature/my-feature)
+      Create a new Pull Request
+
 ### License
-This project is licensed under the MIT License - see the LICENSE file for details.
+   This project is licensed under the MIT License - see the LICENSE file for details.
 
 ### Acknowledgments
-PyInstaller
-Tkinter
+   PyInstaller
+   Tkinter
 
